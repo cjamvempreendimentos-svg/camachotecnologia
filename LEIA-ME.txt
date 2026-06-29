@@ -1,0 +1,2 @@
+Site Camacho Tecnologia - imagens em layout ajustado, sem cortes e com alta qualidade.
+Publique no Netlify em Add new site > Deploy manually.
