@@ -144,7 +144,7 @@
 
     try {
       const alreadyCounted = sessionStorage.getItem('camachoVisitCounted') === '1';
-      const response = await fetch('/.netlify/functions/visitor-count', {
+      const response = await fetch('/api/visitor-count', {
         method: alreadyCounted ? 'GET' : 'POST',
         headers: { accept: 'application/json' },
         credentials: 'same-origin',
