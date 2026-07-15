@@ -49,27 +49,17 @@ function requestIsSameSite(request) {
   return true;
 }
 
-async function buildVisitKey(request) {
-  const clientIp = (
-    request.headers.get('x-nf-client-connection-ip')
-    || request.headers.get('x-forwarded-for')?.split(',')[0]
-    || 'unknown'
-  ).trim().slice(0, 80);
-
-  const userAgent = (request.headers.get('user-agent') || 'unknown').slice(0, 256);
-  const language = (request.headers.get('accept-language') || 'unknown').slice(0, 80);
+async function buildVisitKey(request, context) {
+  const clientIp = String(context.ip || 'unknown').trim().slice(0, 80);
   const day = new Date().toISOString().slice(0, 10);
-  const namespace = process.env.VISITOR_HASH_SALT || new URL(request.url).hostname;
-  const fingerprint = await hash(`${namespace}|${day}|${clientIp}|${userAgent}|${language}`);
+  const secret = globalThis.Netlify?.env?.get('VISITOR_HASH_SALT');
+  const namespace = secret || context.site?.id || new URL(request.url).hostname;
+  const fingerprint = await hash(`${namespace}|${day}|${clientIp}`);
 
   return `visits/${day}/${fingerprint}`;
 }
 
-export default async (request) => {
-  if (!['GET', 'POST'].includes(request.method)) {
-    return json({ error: 'Método não permitido.' }, 405, { allow: 'GET, POST' });
-  }
-
+export default async (request, context) => {
   if (!requestIsSameSite(request)) {
     return json({ error: 'Origem não autorizada.' }, 403);
   }
@@ -79,7 +69,7 @@ export default async (request) => {
     let count = await loadTotal(store);
 
     if (request.method === 'POST') {
-      const visitKey = await buildVisitKey(request);
+      const visitKey = await buildVisitKey(request, context);
       const existingVisit = await store.get(visitKey);
 
       if (!existingVisit) {
@@ -93,4 +83,9 @@ export default async (request) => {
   } catch {
     return json({ error: 'Contador temporariamente indisponível.' }, 503);
   }
+};
+
+export const config = {
+  path: '/api/visitor-count',
+  method: ['GET', 'POST']
 };
