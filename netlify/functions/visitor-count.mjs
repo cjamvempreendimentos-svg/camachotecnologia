@@ -1,4 +1,4 @@
-import { getStore } from '@netlify/blobs';
+import { getDeployStore, getStore } from '@netlify/blobs';
 
 const RESPONSE_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
@@ -22,18 +22,20 @@ async function hash(value) {
   return toHex(await globalThis.crypto.subtle.digest('SHA-256', bytes));
 }
 
+function getVisitStore(context) {
+  if (context.deploy?.context === 'production') {
+    return getStore('camacho-site-visits', { consistency: 'strong' });
+  }
+
+  return getDeployStore('camacho-site-visits-preview');
+}
+
 async function loadTotal(store) {
   const summary = await store.get('summary/total', { type: 'json' });
   if (Number.isSafeInteger(summary?.count) && summary.count >= 0) return summary.count;
 
-  let total = 0;
-  let cursor;
-
-  do {
-    const page = await store.list({ prefix: 'visits/', cursor });
-    total += page.blobs.length;
-    cursor = page.cursor;
-  } while (cursor);
+  const { blobs } = await store.list({ prefix: 'visits/' });
+  const total = blobs.length;
 
   await store.setJSON('summary/total', { count: total, rebuiltAt: new Date().toISOString() });
   return total;
@@ -65,7 +67,7 @@ export default async (request, context) => {
   }
 
   try {
-    const store = getStore({ name: 'camacho-site-visits', consistency: 'strong' });
+    const store = getVisitStore(context);
     let count = await loadTotal(store);
 
     if (request.method === 'POST') {
