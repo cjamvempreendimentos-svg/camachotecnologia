@@ -142,8 +142,32 @@
     counter.append(dot, label);
     footerGrid.insertAdjacentElement('afterend', counter);
 
+    const visitStorageKey = 'camachoVisitCountedAt';
+    const visitWindowMs = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    let alreadyCounted = false;
+
     try {
-      const alreadyCounted = sessionStorage.getItem('camachoVisitCounted') === '1';
+      const countedAt = Number(localStorage.getItem(visitStorageKey));
+      const countedInCurrentSession = sessionStorage.getItem('camachoVisitCounted') === '1';
+
+      if (Number.isFinite(countedAt) && countedAt > 0 && now - countedAt < visitWindowMs) {
+        alreadyCounted = true;
+      } else if (countedInCurrentSession) {
+        localStorage.setItem(visitStorageKey, String(now));
+        alreadyCounted = true;
+      } else if (countedAt) {
+        localStorage.removeItem(visitStorageKey);
+      }
+    } catch {
+      try {
+        alreadyCounted = sessionStorage.getItem('camachoVisitCounted') === '1';
+      } catch {
+        alreadyCounted = false;
+      }
+    }
+
+    try {
       const response = await fetch('/api/visitor-count', {
         method: alreadyCounted ? 'GET' : 'POST',
         headers: { accept: 'application/json' },
@@ -157,7 +181,19 @@
       const value = Number(data.count);
       if (!Number.isSafeInteger(value) || value < 0) throw new Error('invalid-counter');
 
-      if (!alreadyCounted) sessionStorage.setItem('camachoVisitCounted', '1');
+      if (!alreadyCounted) {
+        try {
+          localStorage.setItem(visitStorageKey, String(now));
+          sessionStorage.setItem('camachoVisitCounted', '1');
+        } catch {
+          try {
+            sessionStorage.setItem('camachoVisitCounted', '1');
+          } catch {
+            // O contador continua funcionando quando o armazenamento é bloqueado.
+          }
+        }
+      }
+
       label.textContent = `Visitas: ${value.toLocaleString('pt-BR')}`;
     } catch {
       counter.remove();
