@@ -1,5 +1,7 @@
 import { getDeployStore, getStore } from '@netlify/blobs';
 
+const INITIAL_TOTAL = 8000;
+
 const RESPONSE_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
   'cache-control': 'no-store, max-age=0',
@@ -32,12 +34,26 @@ function getVisitStore(context) {
 
 async function loadTotal(store) {
   const summary = await store.get('summary/total', { type: 'json' });
-  if (Number.isSafeInteger(summary?.count) && summary.count >= 0) return summary.count;
+
+  if (Number.isSafeInteger(summary?.count) && summary.count >= INITIAL_TOTAL) {
+    return summary.count;
+  }
+
+  if (Number.isSafeInteger(summary?.count) && summary.count >= 0) {
+    await store.setJSON('summary/total', {
+      count: INITIAL_TOTAL,
+      adjustedAt: new Date().toISOString()
+    });
+    return INITIAL_TOTAL;
+  }
 
   const { blobs } = await store.list({ prefix: 'visits/' });
-  const total = blobs.length;
+  const total = Math.max(blobs.length, INITIAL_TOTAL);
 
-  await store.setJSON('summary/total', { count: total, rebuiltAt: new Date().toISOString() });
+  await store.setJSON('summary/total', {
+    count: total,
+    rebuiltAt: new Date().toISOString()
+  });
   return total;
 }
 
