@@ -1,0 +1,1 @@
+Botão flutuante da HelenIA injetado por script.js em todas as páginas públicas que carregam o script principal. Na home aponta para #helenia; nas páginas internas aponta para /#helenia. O WhatsApp permanece separado abaixo.
