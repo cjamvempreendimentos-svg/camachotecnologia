@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const stylesheetHref = 'site-updates.css';
-  if (!document.querySelector(`link[href="${stylesheetHref}"]`)) {
+  const stylesheetHref = 'site-updates.css?v=20260808-5';
+  if (![...document.querySelectorAll('link[rel="stylesheet"]')].some((link) => link.href.includes('site-updates.css'))) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
     stylesheet.href = stylesheetHref;
