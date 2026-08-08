@@ -1,6 +1,34 @@
 (() => {
   'use strict';
 
+  function mountHeleniaFloating() {
+    if (document.querySelector('.helenia-floating')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .helenia-floating{position:fixed;right:18px;bottom:92px;z-index:140;width:72px;height:72px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fffdf8;color:#9d6e12;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 0 2px #cba24b,0 15px 36px rgba(0,0,0,.32);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease;isolation:isolate}
+      .helenia-floating:before{content:'';position:absolute;inset:5px;border:1px solid #d8ba72;border-radius:50%;z-index:-1}
+      .helenia-floating:hover,.helenia-floating:focus-visible{transform:translateY(-3px) scale(1.04);box-shadow:0 0 0 2px #d6ad54,0 20px 42px rgba(0,0,0,.38);outline:none}
+      .helenia-float-mark{font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:.9;font-style:italic;color:#c89019;margin-top:2px}
+      .helenia-float-name{font-family:Georgia,'Times New Roman',serif;font-size:10px;line-height:1;margin-top:5px;color:#8b6417}
+      .helenia-float-online{position:absolute;right:8px;top:8px;width:8px;height:8px;border-radius:50%;background:#24b36b;border:2px solid #fff;box-shadow:0 0 0 1px rgba(36,179,107,.25)}
+      .helenia-floating .helenia-float-tip{position:absolute;right:82px;white-space:nowrap;background:#06152a;color:#f5fbff;border:1px solid rgba(82,221,255,.24);border-radius:10px;padding:8px 11px;font:700 11px/1.2 Inter,Segoe UI,Arial,sans-serif;opacity:0;transform:translateX(6px);pointer-events:none;transition:.2s;box-shadow:0 10px 28px rgba(0,0,0,.25)}
+      .helenia-floating:hover .helenia-float-tip,.helenia-floating:focus-visible .helenia-float-tip{opacity:1;transform:none}
+      @media(max-width:650px){.helenia-floating{right:14px;bottom:88px;width:66px;height:66px}.helenia-float-mark{font-size:22px}.helenia-floating .helenia-float-tip{display:none}.floating{right:18px;bottom:16px}}
+      @media(prefers-reduced-motion:reduce){.helenia-floating{transition:none}.helenia-floating:hover,.helenia-floating:focus-visible{transform:none}}
+    `;
+    document.head.appendChild(style);
+
+    const link = document.createElement('a');
+    link.className = 'helenia-floating';
+    link.href = document.getElementById('helenia') ? '#helenia' : '/#helenia';
+    link.setAttribute('aria-label', 'Conversar com a HelenIA');
+    link.innerHTML = '<span class="helenia-float-mark" aria-hidden="true">H</span><span class="helenia-float-name" aria-hidden="true">HelenIA</span><i class="helenia-float-online" aria-hidden="true"></i><span class="helenia-float-tip" aria-hidden="true">Conversar com a HelenIA</span>';
+    document.body.appendChild(link);
+  }
+
+  mountHeleniaFloating();
+
   const stylesheetHref = 'site-updates.css?v=20260808-5';
   if (![...document.querySelectorAll('link[rel="stylesheet"]')].some((link) => link.href.includes('site-updates.css'))) {
     const stylesheet = document.createElement('link');
