@@ -28,3 +28,8 @@ h1,h2,h3{max-width:none!important;word-break:normal!important;overflow-wrap:norm
 @media(max-width:980px){.sites-hero{grid-template-columns:1fr}.site-type-grid{grid-template-columns:repeat(2,1fr)}.sites-process{grid-template-columns:repeat(2,1fr)}.page-intro h1,.sites-hero .content-panel h1{font-size:clamp(28px,4.5vw,36px)!important}.section-head h2{font-size:clamp(25px,3.7vw,32px)!important}}
 @media(max-width:650px){.menu-btn{min-width:91px;padding:0 12px}.site-type-grid,.deliverables-grid,.sites-process{grid-template-columns:1fr}.sites-section{padding-top:46px}.site-highlight{padding:24px}.page-intro h1,.sites-hero .content-panel h1{font-size:clamp(25px,7vw,29px)!important;line-height:1.16!important}.section-head h2,.content-panel h2,.cta-section h2,.portfolio-cta h2{font-size:clamp(23px,6.2vw,27px)!important;line-height:1.17!important}.site-highlight strong{font-size:clamp(23px,6.2vw,27px)!important;line-height:1.16!important}.project-content h2{font-size:24px!important}.helenia-floating{right:14px;bottom:88px;width:66px;height:66px}.helenia-float-mark{font-size:22px}.helenia-floating .helenia-float-tip{display:none}.floating{right:18px;bottom:16px}}
 @media(prefers-reduced-motion:reduce){.helenia-floating{transition:none}.helenia-floating:hover,.helenia-floating:focus-visible{transform:none}}
+
+/* Mantem apenas HelenIA como atalho flutuante. */
+.floating{display:none!important}
+.helenia-floating{bottom:18px!important}
+@media(max-width:650px){.helenia-floating{right:14px!important;bottom:16px!important}}
