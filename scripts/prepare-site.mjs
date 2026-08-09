@@ -57,6 +57,26 @@ function escapeAttr(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
+function optimizeImages(html) {
+  let firstContentImageSeen = false;
+
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    if (!/\bdecoding=/.test(tag)) tag = tag.replace('<img', '<img decoding="async"');
+
+    const isBrandImage = /favicon\.png/i.test(tag);
+    if (isBrandImage) return tag;
+
+    if (!firstContentImageSeen) {
+      firstContentImageSeen = true;
+      if (!/\bfetchpriority=/.test(tag)) tag = tag.replace('<img', '<img fetchpriority="high"');
+      return tag;
+    }
+
+    if (!/\bloading=/.test(tag)) tag = tag.replace('<img', '<img loading="lazy"');
+    return tag;
+  });
+}
+
 for (const [file, meta] of Object.entries(pages)) {
   let html;
   try {
@@ -81,7 +101,7 @@ for (const [file, meta] of Object.entries(pages)) {
     `<link rel="canonical" href="${canonical}">`,
     '<meta property="og:type" content="website">',
     '<meta property="og:locale" content="pt_BR">',
-    `<meta property="og:site_name" content="Camacho Tecnologia">`,
+    '<meta property="og:site_name" content="Camacho Tecnologia">',
     `<meta property="og:title" content="${escapeAttr(meta.title)}">`,
     `<meta property="og:description" content="${escapeAttr(meta.description)}">`,
     `<meta property="og:url" content="${canonical}">`,
@@ -94,6 +114,7 @@ for (const [file, meta] of Object.entries(pages)) {
   ].join('');
 
   html = html.replace('</head>', `${seo}</head>`);
+  html = optimizeImages(html);
   await writeFile(file, html);
 }
 
