@@ -12,6 +12,8 @@
   ];
   let answers = [];
   let step = 0;
+  let trackedStart = false;
+  const track = (event, label='') => window.camachoTrack?.(event, label);
 
   const addMessage = (text, className = '') => {
     const el = document.createElement('div');
@@ -41,6 +43,7 @@
     if (!recommendations.length) recommendations.push('diagnóstico detalhado da operação e evolução do sistema atual');
     const unique = [...new Set(recommendations)].slice(0, 4);
     addMessage(`Diagnóstico inicial: identifiquei oportunidade para ${unique.join('; ')}. Este resultado é preliminar — a arquitetura correta depende de mapear sua operação e regras de negócio.`, 'result');
+    track('helenia_complete');
     const link = document.createElement('a');
     link.className = 'btn primary-btn';
     const summary = encodeURIComponent(`Olá, fiz o diagnóstico com a HelenIA no site da Camacho Tecnologia. Negócio: ${answers[0]}. Cenário: ${answers.slice(1).join(' | ')}. Quero conversar sobre a solução.`);
@@ -48,24 +51,24 @@
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.textContent = 'Enviar diagnóstico para a Camacho';
+    link.addEventListener('click', () => track('helenia_contact', 'Diagnóstico HelenIA'));
     options.replaceChildren(link);
     restart.hidden = false;
   };
 
   function choose(value) {
+    if (!trackedStart) { trackedStart = true; track('helenia_start', value); }
     answers.push(value);
     addMessage(value, 'user');
     if (step < questions.length) {
       const q = questions[step++];
       window.setTimeout(() => { addMessage(q.text); renderOptions(q.options); }, 180);
-    } else {
-      window.setTimeout(finish, 180);
-    }
+    } else window.setTimeout(finish, 180);
   }
 
   options.querySelectorAll('[data-helenia]').forEach(btn => btn.addEventListener('click', () => choose(btn.dataset.helenia)));
   restart.addEventListener('click', () => {
-    answers = []; step = 0; restart.hidden = true;
+    answers = []; step = 0; trackedStart = false; restart.hidden = true;
     chat.innerHTML = '<div class="ai-message">Olá. Posso fazer um diagnóstico inicial da sua operação e identificar onde sistemas, automação ou IA podem ajudar. Qual é o seu tipo de negócio?</div>';
     renderOptions(['Clínica ou saúde', 'Comércio ou loja', 'Alimentação', 'Outro negócio']);
   });
