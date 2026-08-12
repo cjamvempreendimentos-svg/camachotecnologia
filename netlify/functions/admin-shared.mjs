@@ -1,7 +1,8 @@
 import { getDeployStore, getStore } from '@netlify/blobs';
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 const BOOTSTRAP_PASSWORD_HASH='be8ef071ee82e52ffdcf68ce6b8cbfa8303876d2fa9020f719253b721af1e239';
-const isProduction=context=>context?.deploy?.context==='production';
+const deployContext=context=>context?.deploy?.context||process.env.CONTEXT||'';
+const isProduction=context=>deployContext(context)==='production';
 const adminStore=context=>isProduction(context)?getStore('camacho-admin',{consistency:'strong'}):getDeployStore('camacho-admin-preview');
 const metricsStore=context=>isProduction(context)?getStore('camacho-metrics',{consistency:'strong'}):getDeployStore('camacho-metrics-preview');
 export const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'}});
