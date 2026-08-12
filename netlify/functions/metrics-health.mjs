@@ -1,0 +1,3 @@
+import { getStore } from '@netlify/blobs';
+export default async()=>{try{const store=getStore('camacho-metrics',{consistency:'strong'});const key=`health:${Date.now()}`;await store.setJSON(key,{ok:true,createdAt:new Date().toISOString()});const saved=await store.get(key,{type:'json'});await store.delete(key);return Response.json({ok:!!saved,store:'camacho-metrics'});}catch(error){return Response.json({ok:false,error:error?.message||'Falha no armazenamento'},{status:500});}};
+export const config={path:'/api/metrics/health'};
