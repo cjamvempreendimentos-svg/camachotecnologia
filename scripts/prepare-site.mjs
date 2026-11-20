@@ -1,3 +1,4 @@
+import './prepare-benefits.mjs';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const ORIGIN = 'https://camachotecnologia.netlify.app';
@@ -10,6 +11,7 @@ const pages = {
     title: 'Camacho Tecnologia | Sistemas, HelenIA e Automação',
     description: 'Engenharia de sistemas, automação, inteligência artificial, HelenIA, dashboards e sites estratégicos desenvolvidos para a operação real de empresas.'
   },
+  'privacidade.html': { path: '/privacidade.html', title: 'Privacidade e benefícios | Camacho Tecnologia', description: 'Como a Camacho Tecnologia trata os dados de cadastro e cupons de desconto para sites.' },
   'sobre.html': {
     path: '/sobre.html',
     title: 'Sobre | Camacho Tecnologia',
