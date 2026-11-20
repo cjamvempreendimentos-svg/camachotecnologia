@@ -7,4 +7,4 @@ export default async (request, context) => {
   if (!result) return json({ error: 'Senha inválida.' }, 401);
   return json(result);
 };
-export const config = { path: '/api/admin/login' };
+export const config = { path: '/api/admin/login', rateLimit: { action: 'rate_limit', aggregateBy: ['domain','ip'], windowSize: 60, windowLimit: 5 } };
